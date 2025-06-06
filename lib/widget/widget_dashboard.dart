@@ -101,7 +101,7 @@ class _TelaDashboardState extends State<TelaDashboard>
     final cadastros = [
       {'title': 'Vídeo Aula', 'route': '/form_video_aula'},
       {'title': 'Aluno', 'route': '/form_aluno'},
-      {'title': 'Fabricante', 'route': ''},
+      {'title': 'Fabricante', 'route': '/form_fabricante'},
       {'title': 'Tipo Manutenção', 'route': '/form_tipo_manutencao'},
       {'title': 'Sala', 'route': '/form_sala'},
       {'title': 'Categoria Música', 'route': ''},
