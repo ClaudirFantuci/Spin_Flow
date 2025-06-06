@@ -103,7 +103,7 @@ class _TelaDashboardState extends State<TelaDashboard>
       {'title': 'Aluno', 'route': ''},
       {'title': 'Fabricante', 'route': ''},
       {'title': 'Sala', 'route': ''},
-      {'title': 'Tipo Manutenção', 'route': ''},
+      {'title': 'Tipo Manutenção', 'route': '/form_tipo_manutencao'},
       {'title': 'Categoria Música', 'route': ''},
       {'title': 'Banda Artista', 'route': ''},
       {'title': 'Turma', 'route': ''},
