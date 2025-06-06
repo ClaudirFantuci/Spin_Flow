@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widget/form_fabricante.dart';
 
 import 'package:flutter_application_1/widget/form_tipo_manutencao.dart';
 import 'package:flutter_application_1/widget/form_sala.dart';
@@ -46,6 +47,8 @@ class MyApp extends StatelessWidget {
         '/form_sala': (context) => const FormSala(),
 
         '/form_aluno': (context) => const FormAluno(),
+
+        '/form_fabricante': (context) => FormFabricante(),
 
       },
     );
