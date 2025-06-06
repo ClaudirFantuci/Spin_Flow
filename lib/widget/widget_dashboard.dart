@@ -100,7 +100,7 @@ class _TelaDashboardState extends State<TelaDashboard>
   Widget _cadastros() {
     final cadastros = [
       {'title': 'Vídeo Aula', 'route': '/form_video_aula'},
-      {'title': 'Aluno', 'route': ''},
+      {'title': 'Aluno', 'route': '/form_aluno'},
       {'title': 'Fabricante', 'route': ''},
       {'title': 'Sala', 'route': ''},
       {'title': 'Tipo Manutenção', 'route': ''},
@@ -130,7 +130,15 @@ class _TelaDashboardState extends State<TelaDashboard>
         title: Text(title),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          Navigator.pushNamed(context, route);
+          if (route.isNotEmpty) {
+            Navigator.pushNamed(context, route);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Rota para "$title" ainda não implementada'),
+              ),
+            );
+          }
         },
       ),
     );
