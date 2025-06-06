@@ -1,6 +1,7 @@
 # flutter_application_1
 
 A new Flutter project.
+Ao clonar rodar: "flutter pub get"
 
 ## Getting Started
 
