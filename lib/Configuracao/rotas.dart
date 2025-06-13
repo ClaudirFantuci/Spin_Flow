@@ -8,5 +8,5 @@ class Rotas {
   static const formAluno = '/form_aluno';
   static const listaTipoManutencao = '/lista_tipo_manutencao';
   static const listaAluno = '/lista_aluno';
-
+  static const listaSala = '/lista_sala';
 }

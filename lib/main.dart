@@ -7,9 +7,9 @@ import 'package:flutter_application_1/widget/form_video_aula.dart';
 import 'package:flutter_application_1/widget/lista_fabricante.dart';
 import 'package:flutter_application_1/widget/lista_tipo_manutencao.dart';
 import 'package:flutter_application_1/widget/lista_aluno.dart';
+import 'package:flutter_application_1/widget/lista_sala.dart';
 import 'package:flutter_application_1/widget/widget_dashboard.dart';
 import 'package:flutter_application_1/widget/form_aluno.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         Rotas.listaFabricante: (context) => const ListaFabricante(),
         Rotas.listaTipoManutencao: (context) => const ListaTipoManutencao(),
         Rotas.listaAluno: (context) => const ListaAluno(),
-
+        Rotas.listaSala: (context) => const ListaSala(),
       },
     );
   }

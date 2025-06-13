@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Configuracao/rotas.dart';
+import 'package:flutter_application_1/banco/sqlite/dao/dao_sala.dart';
 import 'package:flutter_application_1/dto/dto_sala.dart';
 
 class FormSala extends StatefulWidget {
@@ -15,6 +17,7 @@ class _FormSalaState extends State<FormSala> {
   final _numeroFilasController = TextEditingController();
   final _numeroBikesPorFilaController = TextEditingController();
   bool _ativo = true;
+  final DAOSala _daoSala = DAOSala();
 
   @override
   void dispose() {
@@ -28,6 +31,7 @@ class _FormSalaState extends State<FormSala> {
   void _salvar() {
     if (_formKey.currentState!.validate()) {
       final dto = DTOSala(
+        id: null, // ID será gerado pelo banco
         nome: _nomeController.text.trim(),
         capacidadeTotalBikes: int.parse(_capacidadeController.text.trim()),
         numeroFilas: int.parse(_numeroFilasController.text.trim()),
@@ -38,7 +42,7 @@ class _FormSalaState extends State<FormSala> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Dados da Sala'),
+          title: const Text('Confirmar Cadastro'),
           content: Text(
             'Nome: ${dto.nome}\n'
             'Capacidade total de bikes: ${dto.capacidadeTotalBikes}\n'
@@ -49,7 +53,26 @@ class _FormSalaState extends State<FormSala> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await _daoSala.salvar(dto);
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, Rotas.listaSala);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Sala cadastrada com sucesso')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao cadastrar sala: $e')),
+                  );
+                }
+              },
+              child: const Text('Confirmar'),
             ),
           ],
         ),

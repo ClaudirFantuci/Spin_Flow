@@ -34,7 +34,18 @@ CREATE TABLE aluno (
 );
 ''';
 
-final criarTabelas = [_fabricante, _tipoManutencao, _aluno];
+final _sala = '''
+CREATE TABLE sala (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    capacidade_total_bikes INTEGER NOT NULL,
+    numero_filas INTEGER NOT NULL,
+    numero_bikes_por_fila INTEGER NOT NULL,
+    ativo INTEGER NOT NULL DEFAULT 1
+);
+''';
+
+final criarTabelas = [_fabricante, _tipoManutencao, _aluno, _sala];
 
 final insertFabricantes = [
   '''
@@ -62,5 +73,14 @@ INSERT INTO aluno (nome, email, data_nascimento, genero, telefone_contato, perfi
     ('Ana Pereira', 'ana.pereira@email.com', '1995-03-15', 'Feminino', '(11) 91234-5678', '@anapereira', 'ana.pereira.fb', '@anap.tiktok', 1),
     ('Bruno Costa', 'bruno.costa@email.com', '1998-07-22', 'Masculino', '(21) 98765-4321', null, null, null, 1),
     ('Clara Souza', 'clara.souza@email.com', '2000-11-30', 'Feminino', '(31) 99876-5432', '@clarasouza', null, null, 0);
+'''
+];
+
+final insertSalas = [
+  '''
+INSERT INTO sala (nome, capacidade_total_bikes, numero_filas, numero_bikes_por_fila, ativo) VALUES
+    ('Sala A', 20, 4, 5, 1),
+    ('Sala B', 15, 3, 5, 1),
+    ('Sala C', 10, 2, 5, 0);
 '''
 ];
