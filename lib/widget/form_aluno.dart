@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Configuracao/rotas.dart';
+import 'package:flutter_application_1/banco/sqlite/dao/dao_aluno.dart';
 import 'package:flutter_application_1/dto/dto_aluno.dart';
-// import 'package:intl/intl.dart';
 
 class FormAluno extends StatefulWidget {
-  const FormAluno({super.key});
+  const FormAluno({Key? key}) : super(key: key);
 
   @override
   State<FormAluno> createState() => _FormAlunoState();
@@ -14,18 +15,20 @@ class _FormAlunoState extends State<FormAluno> {
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _dataNascimentoController = TextEditingController();
-  String? _genero;
+  final _generoController = TextEditingController();
   final _telefoneContatoController = TextEditingController();
   final _perfilInstagramController = TextEditingController();
   final _perfilFacebookController = TextEditingController();
   final _perfilTiktokController = TextEditingController();
   bool _ativo = true;
+  final DAOAluno _daoAluno = DAOAluno();
 
   @override
   void dispose() {
     _nomeController.dispose();
     _emailController.dispose();
     _dataNascimentoController.dispose();
+    _generoController.dispose();
     _telefoneContatoController.dispose();
     _perfilInstagramController.dispose();
     _perfilFacebookController.dispose();
@@ -37,51 +40,104 @@ class _FormAlunoState extends State<FormAluno> {
     if (_formKey.currentState!.validate()) {
       final dto = DTOAluno(
         id: null,
-        nome: _nomeController.text,
-        email: _emailController.text,
-        dataNascimento: _dataNascimentoController.text,
-        genero: _genero!,
-        telefoneContato: _telefoneContatoController.text,
-        perfilInstagram: _perfilInstagramController.text.isEmpty
+        nome: _nomeController.text.trim(),
+        email: _emailController.text.trim(),
+        dataNascimento: _dataNascimentoController.text.trim(),
+        genero: _generoController.text.trim(),
+        telefoneContato: _telefoneContatoController.text.trim(),
+        perfilInstagram: _perfilInstagramController.text.trim().isEmpty
             ? null
-            : _perfilInstagramController.text,
-        perfilFacebook: _perfilFacebookController.text.isEmpty
+            : _perfilInstagramController.text.trim(),
+        perfilFacebook: _perfilFacebookController.text.trim().isEmpty
             ? null
-            : _perfilFacebookController.text,
-        perfilTiktok: _perfilTiktokController.text.isEmpty
+            : _perfilFacebookController.text.trim(),
+        perfilTiktok: _perfilTiktokController.text.trim().isEmpty
             ? null
-            : _perfilTiktokController.text,
+            : _perfilTiktokController.text.trim(),
         ativo: _ativo,
       );
-
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Dados do Aluno'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Nome: ${dto.nome}'),
-              Text('Email: ${dto.email}'),
-              Text('Data de Nascimento: ${dto.dataNascimento}'),
-              Text('Gênero: ${dto.genero}'),
-              Text('Telefone: ${dto.telefoneContato}'),
-              Text('Instagram: ${dto.perfilInstagram ?? "Não informado"}'),
-              Text('Facebook: ${dto.perfilFacebook ?? "Não informado"}'),
-              Text('TikTok: ${dto.perfilTiktok ?? "Não informado"}'),
-              Text('Ativo: ${dto.ativo ? "Sim" : "Não"}'),
-            ],
+          title: const Text('Confirmar Cadastro'),
+          content: Text(
+            'Nome: ${dto.nome}\n'
+            'Email: ${dto.email}\n'
+            'Data de Nascimento: ${dto.dataNascimento}\n'
+            'Gênero: ${dto.genero}\n'
+            'Telefone: ${dto.telefoneContato}\n'
+            'Instagram: ${dto.perfilInstagram ?? "-"}\n'
+            'Facebook: ${dto.perfilFacebook ?? "-"}\n'
+            'TikTok: ${dto.perfilTiktok ?? "-"}\n'
+            'Ativo: ${dto.ativo ? "Sim" : "Não"}',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await _daoAluno.salvar(dto);
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, Rotas.listaAluno);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Aluno cadastrado com sucesso')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao cadastrar aluno: $e')),
+                  );
+                }
+              },
+              child: const Text('Confirmar'),
             ),
           ],
         ),
       );
     }
+  }
+
+  String? _validarNome(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'O nome é obrigatório';
+    }
+    return null;
+  }
+
+  String? _validarEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'O email é obrigatório';
+    }
+    final exp = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+\w{2,4}$');
+    if (!exp.hasMatch(value.trim())) {
+      return 'Informe um email válido';
+    }
+    return null;
+  }
+
+  String? _validarDataNascimento(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'A data de nascimento é obrigatória';
+    }
+    return null;
+  }
+
+  String? _validarGenero(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'O gênero é obrigatório';
+    }
+    return null;
+  }
+
+  String? _validarTelefone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'O telefone é obrigatório';
+    }
+    return null;
   }
 
   @override
@@ -90,148 +146,103 @@ class _FormAlunoState extends State<FormAluno> {
       appBar: AppBar(
         title: const Text('Cadastro de Aluno'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nomeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome *',
-                    hintText: 'Digite o nome completo',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'O campo Nome é obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email *',
-                    hintText: 'Digite o email',
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'O campo Email é obrigatório';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
-                      return 'Por favor, insira um email válido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _dataNascimentoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Data de Nascimento *',
-                    hintText: 'AAAA-MM-DD',
-                  ),
-                  keyboardType: TextInputType.datetime,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'O campo Data de Nascimento é obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _genero,
-                  decoration: const InputDecoration(
-                    labelText: 'Gênero *',
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'Masculino', child: Text('Masculino')),
-                    DropdownMenuItem(
-                        value: 'Feminino', child: Text('Feminino')),
-                    DropdownMenuItem(value: 'Outro', child: Text('Outro')),
-                    DropdownMenuItem(
-                        value: 'Prefiro não informar',
-                        child: Text('Prefiro não informar')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _genero = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'O campo Gênero é obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _telefoneContatoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Telefone de Contato *',
-                    hintText: '(##) #####-####',
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'O campo Telefone é obrigatório';
-                    }
-                    if (!RegExp(r'^\(\d{2}\) \d{5}-\d{4}$').hasMatch(value)) {
-                      return 'Formato inválido. Use (##) #####-####';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _perfilInstagramController,
-                  decoration: const InputDecoration(
-                    labelText: 'Perfil Instagram',
-                    hintText: 'Digite o perfil do Instagram (opcional)',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _perfilFacebookController,
-                  decoration: const InputDecoration(
-                    labelText: 'Perfil Facebook',
-                    hintText: 'Digite o perfil do Facebook (opcional)',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _perfilTiktokController,
-                  decoration: const InputDecoration(
-                    labelText: 'Perfil TikTok',
-                    hintText: 'Digite o perfil do TikTok (opcional)',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SwitchListTile(
-                  title: const Text('Ativo'),
-                  value: _ativo,
-                  onChanged: (value) {
-                    setState(() {
-                      _ativo = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _salvar,
-                  child: const Text('Salvar'),
-                ),
-              ],
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(18),
+          children: [
+            TextFormField(
+              controller: _nomeController,
+              decoration: const InputDecoration(
+                labelText: 'Nome *',
+                border: OutlineInputBorder(),
+              ),
+              validator: _validarNome,
+              textInputAction: TextInputAction.next,
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email *',
+                border: OutlineInputBorder(),
+              ),
+              validator: _validarEmail,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _dataNascimentoController,
+              decoration: const InputDecoration(
+                labelText: 'Data de Nascimento *',
+                border: OutlineInputBorder(),
+              ),
+              validator: _validarDataNascimento,
+              keyboardType: TextInputType.datetime,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _generoController,
+              decoration: const InputDecoration(
+                labelText: 'Gênero *',
+                border: OutlineInputBorder(),
+              ),
+              validator: _validarGenero,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _telefoneContatoController,
+              decoration: const InputDecoration(
+                labelText: 'Telefone *',
+                border: OutlineInputBorder(),
+              ),
+              validator: _validarTelefone,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _perfilInstagramController,
+              decoration: const InputDecoration(
+                labelText: 'Perfil Instagram',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _perfilFacebookController,
+              decoration: const InputDecoration(
+                labelText: 'Perfil Facebook',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _perfilTiktokController,
+              decoration: const InputDecoration(
+                labelText: 'Perfil TikTok',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.done,
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              title: const Text('Ativo'),
+              value: _ativo,
+              onChanged: (v) => setState(() => _ativo = v),
+              contentPadding: EdgeInsets.zero,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _salvar,
+              child: const Text('Salvar'),
+            ),
+          ],
         ),
       ),
     );
