@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../dto/dto_tipo_manutencao.dart';
+import 'package:flutter_application_1/Configuracao/rotas.dart';
+import 'package:flutter_application_1/banco/sqlite/dao/dao_tipo_manutencao.dart';
+import 'package:flutter_application_1/dto/dto_tipo_manutencao.dart';
 
 class FormTipoManutencao extends StatefulWidget {
   const FormTipoManutencao({super.key});
@@ -13,6 +15,7 @@ class _FormTipoManutencaoState extends State<FormTipoManutencao> {
   final _nomeController = TextEditingController();
   final _descricaoController = TextEditingController();
   bool _ativo = true;
+  final DAOTipoManutencao _daoTipoManutencao = DAOTipoManutencao();
 
   @override
   void dispose() {
@@ -24,17 +27,18 @@ class _FormTipoManutencaoState extends State<FormTipoManutencao> {
   void _salvar() {
     if (_formKey.currentState!.validate()) {
       final dto = DTOTipoManutencao(
-        nome: _nomeController.text,
-        descricao: _descricaoController.text.isEmpty
+        id: null, // ID será gerado pelo banco
+        nome: _nomeController.text.trim(),
+        descricao: _descricaoController.text.trim().isEmpty
             ? null
-            : _descricaoController.text,
+            : _descricaoController.text.trim(),
         ativo: _ativo,
       );
 
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Dados do Tipo de Manutenção'),
+          title: const Text('Confirmar Cadastro'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +51,29 @@ class _FormTipoManutencaoState extends State<FormTipoManutencao> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await _daoTipoManutencao.salvar(dto);
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, Rotas.listaTipoManutencao);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Tipo de manutenção cadastrado com sucesso')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content:
+                            Text('Erro ao cadastrar tipo de manutenção: $e')),
+                  );
+                }
+              },
+              child: const Text('Confirmar'),
             ),
           ],
         ),
@@ -72,9 +98,10 @@ class _FormTipoManutencaoState extends State<FormTipoManutencao> {
                 decoration: const InputDecoration(
                   labelText: 'Nome *',
                   hintText: 'Digite o nome do tipo de manutenção',
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'O campo Nome é obrigatório';
                   }
                   return null;
@@ -86,6 +113,7 @@ class _FormTipoManutencaoState extends State<FormTipoManutencao> {
                 decoration: const InputDecoration(
                   labelText: 'Descrição',
                   hintText: 'Digite a descrição (opcional)',
+                  border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
