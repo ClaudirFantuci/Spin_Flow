@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Configuracao/rotas.dart';
+import 'package:flutter_application_1/banco/sqlite/dao/dao_fabricante.dart';
 import 'package:flutter_application_1/dto/dto_fabricante.dart';
 
 class FormFabricante extends StatefulWidget {
@@ -16,6 +18,7 @@ class _FormFabricanteState extends State<FormFabricante> {
   final _emailContatoController = TextEditingController();
   final _telefoneContatoController = TextEditingController();
   bool _ativo = true;
+  final DAOFabricante _daoFabricante = DAOFabricante();
 
   @override
   void dispose() {
@@ -30,6 +33,7 @@ class _FormFabricanteState extends State<FormFabricante> {
   void _salvar() {
     if (_formKey.currentState!.validate()) {
       final dto = DTOFabricante(
+        id: null, // ID será gerado pelo banco (auto-increment)
         nome: _nomeController.text.trim(),
         descricao: _descricaoController.text.trim().isEmpty
             ? null
@@ -48,7 +52,7 @@ class _FormFabricanteState extends State<FormFabricante> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Dados do Fabricante'),
+          title: const Text('Confirmar Cadastro'),
           content: Text(
             'Nome: ${dto.nome}\n'
             'Descrição: ${dto.descricao ?? "-"}\n'
@@ -60,7 +64,26 @@ class _FormFabricanteState extends State<FormFabricante> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await _daoFabricante.salvar(dto);
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, Rotas.listaFabricante);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Fabricante cadastrado com sucesso')),
+                  );
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao cadastrar fabricante: $e')),
+                  );
+                }
+              },
+              child: const Text('Confirmar'),
             ),
           ],
         ),

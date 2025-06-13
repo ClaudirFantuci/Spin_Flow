@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/dto/dto_aluno.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 
 class FormAluno extends StatefulWidget {
   const FormAluno({super.key});
@@ -140,11 +140,6 @@ class _FormAlunoState extends State<FormAluno> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'O campo Data de Nascimento é obrigatório';
-                    }
-                    try {
-                      DateFormat('yyyy-MM-dd').parseStrict(value);
-                    } catch (e) {
-                      return 'Formato inválido. Use AAAA-MM-DD';
                     }
                     return null;
                   },
